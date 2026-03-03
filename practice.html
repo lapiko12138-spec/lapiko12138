@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pronunciation Practice</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f7f7f5;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px}
+    h1{font-size:1.4rem;font-weight:600;margin-bottom:4px;color:#111}
+    .sub{font-size:.85rem;color:#888;margin-bottom:32px}
+    .card{background:white;border-radius:16px;padding:28px 32px;width:100%;max-width:680px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:14px}
+    .pb-wrap{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+    .pb{flex:1;height:4px;background:#eee;border-radius:99px;overflow:hidden}
+    .pf{height:100%;background:#1a1a1a;border-radius:99px;transition:width .4s}
+    .pl{font-size:.78rem;color:#aaa;white-space:nowrap}
+    .lbl{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#ccc;margin-bottom:8px}
+    .st{font-size:1.05rem;line-height:1.8;margin-bottom:22px;min-height:60px;color:#1a1a1a}
+    .word{border-radius:3px;padding:0 2px}
+    .correct{background:#d4edda;color:#155724}
+    .wrong{background:#f8d7da;color:#721c24;text-decoration:underline wavy #e74c3c}
+    .ctrl{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    button{border:none;cursor:pointer;border-radius:10px;font-size:.88rem;font-weight:500;transition:all .15s;padding:10px 18px}
+    .rec{background:#1a1a1a;color:white;display:flex;align-items:center;gap:6px}
+    .rec:hover{background:#333}
+    .rec.on{background:#e74c3c;animation:pulse 1s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+    .nxt{background:#f0f0ee;color:#444}
+    .nxt:hover{background:#e5e5e3}
+    .nxt:disabled{opacity:.4;cursor:default}
+    .ls{background:transparent;color:#888;border:1.5px solid #e0e0e0;padding:9px 14px}
+    .ls:hover{border-color:#bbb;color:#555}
+    .sts{font-size:.82rem;color:#aaa;margin-left:auto}
+    .tip{font-size:.78rem;color:#bbb;margin-top:12px;line-height:1.5;padding:8px 0 0;border-top:1px solid #f0f0ee}
+    .fb{background:white;border-radius:16px;padding:22px 32px;width:100%;max-width:680px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:14px;display:none}
+    .fb.on{display:block}
+    .sr{display:flex;align-items:center;gap:12px;margin-bottom:9px}
+    .sl{font-size:.85rem;color:#666;width:110px}
+    .st2{flex:1;height:6px;background:#f0f0ee;border-radius:99px;overflow:hidden}
+    .sf{height:100%;border-radius:99px;transition:width .6s}
+    .sn{font-size:.85rem;font-weight:600;width:32px;text-align:right;color:#1a1a1a}
+    .fn{margin-top:12px;font-size:.85rem;color:#666;line-height:1.6;padding:11px 13px;background:#f7f7f5;border-radius:9px}
+    .tl{margin-top:10px}
+    .tll{font-size:.7rem;color:#ccc;font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+    .tt{font-size:.85rem;color:#555;font-style:italic}
+    .fin{background:#1a1a1a;color:white;border-radius:16px;padding:36px 32px;width:100%;max-width:680px;text-align:center;display:none}
+    .fin.on{display:block}
+    .fs{font-size:3.5rem;font-weight:700;letter-spacing:-2px;margin:10px 0 2px}
+    .fbd{display:flex;justify-content:center;gap:28px;margin:16px 0 26px}
+    .bi{text-align:center}
+    .bn{font-size:1.4rem;font-weight:600}
+    .bd{font-size:.78rem;color:#888;margin-top:2px}
+    .rs{background:white;color:#1a1a1a;padding:12px 28px}
+    .rs:hover{background:#f0f0ee}
+  </style>
+</head>
+<body>
+<h1>Pronunciation Practice</h1>
+<p class="sub">Camp Application Speech · Read each sentence aloud</p>
+
+<div class="card" id="mc">
+  <div class="pb-wrap">
+    <div class="pb"><div class="pf" id="pf" style="width:0%"></div></div>
+    <span class="pl" id="pl">1 / 10</span>
+  </div>
+  <div class="lbl">Read aloud</div>
+  <div class="st" id="st"></div>
+  <div class="ctrl">
+    <button class="rec" id="rb" onclick="toggle()"><span>🎤</span><span id="rl">Start Recording</span></button>
+    <button class="ls" onclick="listen()">🔊 Listen</button>
+    <button class="nxt" id="nb" onclick="next()" disabled>Next →</button>
+    <span class="sts" id="ss">Click 🔊 to hear first, then record</span>
+  </div>
+  <div class="tip" id="tip"></div>
+</div>
+
+<div class="fb" id="fb">
+  <div class="lbl">Feedback</div>
+  <div class="sr"><span class="sl">Accuracy</span><div class="st2"><div class="sf" id="af" style="width:0%"></div></div><span class="sn" id="an">—</span></div>
+  <div class="sr"><span class="sl">Fluency</span><div class="st2"><div class="sf" id="ff" style="width:0%"></div></div><span class="sn" id="fn2">—</span></div>
+  <div class="sr"><span class="sl">Completeness</span><div class="st2"><div class="sf" id="cf" style="width:0%"></div></div><span class="sn" id="cn">—</span></div>
+  <div class="fn" id="fn"></div>
+  <div class="tl"><div class="tll">What we heard</div><div class="tt" id="tt">—</div></div>
+</div>
+
+<div class="fin" id="fin">
+  <div style="font-size:.85rem;color:#888;text-transform:uppercase;letter-spacing:1px">Practice Complete 🎉</div>
+  <div class="fs" id="fsc">—</div>
+  <div style="font-size:.9rem;color:#aaa;margin-bottom:16px">Overall Score</div>
+  <div class="fbd">
+    <div class="bi"><div class="bn" id="gcn">—</div><div class="bd">Good sentences</div></div>
+    <div class="bi"><div class="bn" id="tsn">—</div><div class="bd">Total</div></div>
+  </div>
+  <button class="rs" onclick="restart()">Practice Again</button>
+</div>
+
+<script>
+const S=[
+  "Hi, my name is blank, and I'm currently a second-year graduate student in China.",
+  "I'm really hoping to spend this summer with kids, have fun together, and create some great memories. And I think this camp is the perfect place to do that.",
+  "One thing I really love is being outdoors.",
+  "I ski, I scuba dive, and I love hiking. These are my favorite ways to spend my free time.",
+  "So whether it's on the slopes, in the water, or out on a trail, I'm always ready for an adventure. And I'd love to share that with the campers.",
+  "Beyond the outdoors, I also have a lot of experience working with children.",
+  "I spent four years as a Pinyin teacher for kindergarteners, and that really taught me how to be patient, stay playful, and make kids feel comfortable around me.",
+  "I genuinely love being around children. Their energy always makes me happy, and I hope I can bring the same joy to them.",
+  "So I'd love the chance to combine all of this. My love for the outdoors, my experience with kids, and my passion for creating fun, at your camp this summer.",
+  "Thank you so much, and I really hope we get to meet soon!"
+];
+
+const TIPS=[
+  "💡 Stress 'second-year graduate student' — say each word clearly.",
+  "💡 Pause after 'memories' — let it breathe before continuing.",
+  "💡 Short and confident — say it with a warm smile!",
+  "💡 Equal energy on each hobby: ski / scuba dive / hiking.",
+  "💡 Rise slightly on 'slopes... water... trail' — like listing options.",
+  "💡 'Beyond the outdoors' — use it as a smooth gear-change.",
+  "💡 Slow down on 'patient, stay playful' — these are your key points.",
+  "💡 Warm up your voice on 'I genuinely love...' — let it sound real.",
+  "💡 Slight pause between each item: outdoors / kids / fun.",
+  "💡 Smile as you say the last line — it comes through in your voice!"
+];
+
+let ci=0, isRec=false, scores=[], lastT='', t0=0, voices=[], currentRec=null;
+
+window.speechSynthesis.onvoiceschanged = () => { voices = speechSynthesis.getVoices(); };
+setTimeout(() => { voices = speechSynthesis.getVoices(); }, 500);
+
+function getBestVoice(){
+  const preferred=['Samantha','Karen','Google US English','Microsoft Aria','Alex'];
+  for(const name of preferred){
+    const v=voices.find(v=>v.name.includes(name));
+    if(v)return v;
+  }
+  return voices.find(v=>v.lang==='en-US')||null;
+}
+
+const getColor=s=>s>=88?'#27ae60':s>=72?'#2ecc71':s>=55?'#f1c40f':s>=40?'#e67e22':'#e74c3c';
+const norm=s=>s.toLowerCase().replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim();
+const tok=s=>norm(s).split(' ').filter(Boolean);
+
+function calcAcc(o,h){const ow=tok(o),hc=[...tok(h)];if(!hc.length)return 0;let m=0;for(const w of ow){const i=hc.indexOf(w);if(i!==-1){m++;hc.splice(i,1)}}return Math.round(m/ow.length*100)}
+function calcCom(o,h){return Math.min(100,Math.round(tok(h).length/tok(o).length*100))}
+function calcFlu(h,ms){
+  const w=tok(h).length;if(!w||!ms)return 0;
+  const wpm=w/ms*60000;
+  if(wpm<30)return 30;
+  if(wpm>=100&&wpm<=160)return 100;
+  if(wpm>=70&&wpm<100)return Math.round(70+(wpm-70)/30*30);
+  if(wpm>160&&wpm<=200)return Math.round(100-(wpm-160)/40*40);
+  return 50;
+}
+
+function highlight(o,h){
+  const ws=o.replace(/[—–]/g,' ').split(/\s+/).filter(Boolean);
+  const hc=[...tok(h)];
+  return ws.map(w=>{
+    const c=norm(w);if(!c)return w;
+    const i=hc.indexOf(c);let cl='wrong';
+    if(i!==-1){hc.splice(i,1);cl='correct'}
+    return `<span class="word ${cl}">${w}</span>`;
+  }).join(' ');
+}
+
+function getNote(a,f,c){
+  const avg=Math.round((a+f+c)/3);
+  if(avg>=88)return"🎉 Excellent! Clear, natural, and confident. You're ready!";
+  if(avg>=72)return"👍 Good job! Just a few words missed — one more run and you've got it.";
+  if(avg>=55)return"💬 Getting there! Try slowing down and really land each word.";
+  return"🎤 Keep going! Hit 🔊 Listen first to absorb the rhythm, then try again.";
+}
+
+function setStatus(t){ document.getElementById('ss').textContent=t; }
+function setRecBtn(recording){
+  const rb=document.getElementById('rb');
+  const rl=document.getElementById('rl');
+  if(recording){ rb.classList.add('on'); rl.textContent='Recording… (tap to stop)'; }
+  else { rb.classList.remove('on'); rl.textContent='Record Again'; }
+}
+
+function render(){
+  document.getElementById('st').textContent=S[ci];
+  document.getElementById('pl').textContent=`${ci+1} / ${S.length}`;
+  document.getElementById('pf').style.width=`${ci/S.length*100}%`;
+  document.getElementById('nb').disabled=true;
+  document.getElementById('nb').textContent=ci===S.length-1?'Finish ✓':'Next →';
+  document.getElementById('tip').textContent=TIPS[ci];
+  document.getElementById('fb').classList.remove('on');
+  setRecBtn(false);
+  setStatus('Click 🔊 to hear first, then record');
+}
+
+function listen(){
+  speechSynthesis.cancel();
+  const text=S[ci].replace(/—/g,', ');
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-US'; u.rate=0.82; u.pitch=1.05; u.volume=1;
+  const v=getBestVoice(); if(v)u.voice=v;
+  speechSynthesis.speak(u);
+}
+
+function toggle(){
+  if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){
+    alert('Please use Safari or Chrome for speech recognition.');return;
+  }
+
+  // If currently recording, stop it
+  if(isRec){
+    if(currentRec){ try{ currentRec.stop(); }catch(e){} }
+    return;
+  }
+
+  // Stop any TTS
+  speechSynthesis.cancel();
+
+  // Reset transcript
+  lastT='';
+
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const rec=new SR();
+  currentRec=rec;
+  rec.lang='en-US';
+  rec.interimResults=false;
+  rec.maxAlternatives=1;
+  rec.continuous=false;
+
+  rec.onstart=()=>{
+    isRec=true;
+    t0=Date.now();
+    setRecBtn(true);
+    setStatus('🔴 Listening…');
+    document.getElementById('fb').classList.remove('on');
+    document.getElementById('st').textContent=S[ci];
+  };
+
+  rec.onresult=e=>{
+    lastT=Array.from(e.results).map(r=>r[0].transcript).join(' ');
+  };
+
+  rec.onerror=e=>{
+    isRec=false;
+    currentRec=null;
+    setRecBtn(false);
+    if(e.error==='not-allowed'){
+      setStatus('Mic blocked — please allow microphone in browser settings.');
+    } else if(e.error==='no-speech'){
+      setStatus('No speech detected. Tap record and try again.');
+    } else {
+      setStatus(`Error: ${e.error}. Tap record to try again.`);
+    }
+  };
+
+  rec.onend=()=>{
+    isRec=false;
+    currentRec=null;
+    const dur=Date.now()-t0;
+    setRecBtn(false);
+    if(!lastT){
+      setStatus('Nothing heard. Tap record and try again.');
+      return;
+    }
+    setStatus('Done! ✓');
+    showFeedback(lastT,dur);
+  };
+
+  try {
+    rec.start();
+  } catch(e) {
+    isRec=false;
+    currentRec=null;
+    setStatus('Could not start recording. Try again.');
+  }
+}
+
+function showFeedback(tr,dur){
+  const o=S[ci],a=calcAcc(o,tr),c=calcCom(o,tr),f=calcFlu(tr,dur);
+  scores.push({a,f,c,avg:Math.round((a+f+c)/3)});
+  document.getElementById('st').innerHTML=highlight(o,tr);
+  [['af','an',a],['ff','fn2',f],['cf','cn',c]].forEach(([fi,ni,v])=>{
+    const el=document.getElementById(fi);
+    el.style.width=v+'%'; el.style.background=getColor(v);
+    document.getElementById(ni).textContent=v;
+  });
+  document.getElementById('fn').textContent=getNote(a,f,c);
+  document.getElementById('tt').textContent=`"${tr}"`;
+  document.getElementById('fb').classList.add('on');
+  document.getElementById('nb').disabled=false;
+}
+
+function next(){
+  ci++; lastT='';
+  if(ci>=S.length){ showFinal(); return; }
+  render();
+}
+
+function showFinal(){
+  document.getElementById('mc').style.display='none';
+  document.getElementById('fb').classList.remove('on');
+  const avg=Math.round(scores.reduce((s,x)=>s+x.avg,0)/scores.length);
+  document.getElementById('fsc').textContent=avg;
+  document.getElementById('gcn').textContent=scores.filter(s=>s.avg>=70).length;
+  document.getElementById('tsn').textContent=scores.length;
+  document.getElementById('fin').classList.add('on');
+}
+
+function restart(){
+  ci=0; scores=[]; lastT='';
+  document.getElementById('mc').style.display='block';
+  document.getElementById('fin').classList.remove('on');
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
